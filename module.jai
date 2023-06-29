@@ -715,8 +715,6 @@ MHD_DIGEST_AUTH_INVALID_NC_VALUE :: 0;
 
 MHD_INVALID_NONCE :: -1;
 
-ssize_t :: s64;
-
 /**
 * Operational results from MHD calls.
 */
@@ -730,7 +728,13 @@ MHD_Result :: enum s32 {
     MHD_YES :: YES;
 }
 
-MHD_socket :: SOCKET;
+#if OS == .WINDOWS {
+    MHD_socket :: SOCKET;
+} else #if OS == .LINUX {
+    MHD_socket :: s32;
+} else {
+    assert(false, "This OS isn't supported by libmicrohttpd yet.");
+}
 
 /**
 * Returns the string reason phrase for a response code.
@@ -4266,4 +4270,15 @@ size_t :: u64;
 off_t :: s64;
 va_list :: *void;
 
-libmicrohttpd_12 :: #library "bin/win/libmicrohttpd-12";
+
+#if OS == .WINDOWS {
+    ssize_t :: s64;
+    
+    libmicrohttpd_12 :: #library "bin/win/libmicrohttpd-12";
+} else #if OS == .LINUX {
+    #import "POSIX";
+
+    libmicrohttpd_12 :: #library "bin/linux/libmicrohttpd-12";
+} else {
+    assert(false, "This OS is not supported for libmicrohttpd yet.");
+}
